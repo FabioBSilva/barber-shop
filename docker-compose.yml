@@ -1,0 +1,68 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: app
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www
+    networks:
+      - app-network
+    volumes:
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.webserver
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www
+    ports:
+      - "80:80"
+      - "443:443"
+      - "6001:6001"
+    networks:
+      - app-network
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+
+  db:
+    image: mariadb:10.3
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: barbearia
+      MYSQL_ROOT_PASSWORD: 
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - app-network
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  redisdb:
+    image: redis:5.0
+    container_name: redisdb
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
