@@ -22,6 +22,7 @@ class CreateBarbersTable extends Migration
             $table->string('city');
             $table->string('zip');
             $table->text('avatar')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamps();
         });
     }

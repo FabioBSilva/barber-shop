@@ -7,10 +7,10 @@ class UsersFieldValidator
     public static function store(){
 
         $rules = [
-            'name' => 'required|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'barber' => 'required|boolean'
+            'name'      => 'required|max:255',
+            'email'     => 'required|email|unique:users,email',
+            'password'  => 'required|min:6',
+            'barber'    => 'required|boolean'
         ];
 
         return $rules;
@@ -19,8 +19,8 @@ class UsersFieldValidator
     public static function login() {
 
         $rules = [
-            'email' => 'required|email|exists:users,email',
-            'password' => 'required|min:6'
+            'email'     => 'required|email|exists:users,email',
+            'password'  => 'required|min:6'
         ];
 
         return $rules;
@@ -29,9 +29,9 @@ class UsersFieldValidator
     public static function update()
     {
         $rules = [
-            'name' => 'max:255',
-            'email' => 'email|unique:users,email',
-            'password' => 'min:6'
+            'name'      => 'max:255',
+            'email'     => 'email|unique:users,email',
+            'password'  => 'min:6'
         ];
 
         return $rules;

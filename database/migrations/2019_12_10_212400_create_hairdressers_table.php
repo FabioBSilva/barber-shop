@@ -13,7 +13,7 @@ class CreateHairdressersTable extends Migration
      */
     public function up()
     {
-        Schema::create('hairdresser', function (Blueprint $table) {
+        Schema::create('hairdressers', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
             $table->unsignedBigInteger('barber_id');
@@ -29,6 +29,6 @@ class CreateHairdressersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('hairdresser');
+        Schema::dropIfExists('hairdressers');
     }
 }
