@@ -26,7 +26,6 @@ class UsersController extends Controller
         $token = Str::random(32);
         
         try{
-
             DB::beginTransaction();
 
             $user = User::create([
@@ -67,7 +66,6 @@ class UsersController extends Controller
     function logout(Request $request)
     {
         $request->user()->token()->revoke();
-    
         return response(['message' => 'Successfully logout'], 200);
     }
 
@@ -86,9 +84,7 @@ class UsersController extends Controller
     public function scheduleUser()
     {
         $user = Auth::user();
-
         $schedule = $user->schedule;
-
         return response()->json(['message'=>'success', 'schedule'=>$schedule], 200);
     }
 
@@ -113,7 +109,6 @@ class UsersController extends Controller
         $this->validate($request, UsersFieldValidator::changePassword());
         $user = Auth::user();
 
-        //get current password
         $oldPassword = $user->password;
 
         if (Hash::check($request->password, $oldPassword)) {
@@ -136,25 +131,21 @@ class UsersController extends Controller
     public function recoverEmail(Request $request)
     {
         $this->validate($request, UsersFieldValidator::recoverEmail());
-        //this token is sent to the registered email address
+
         $token = Str::random(32);
 
         try {
-            //searches the database where the phone is the same as the phone entered
             $user = User::where('email', $request->email)->first();
 
-            //Checks for the email the user has entered
             if (!isset($user)) {
                 return response()->json(['message' => 'error', 'error' => 'This email does not belong to any users'], 404);
             }
 
-            //save to passwordreset table
             PasswordReset::create([
                 'email' => $request->email,
                 'token' => $token
             ]);
 
-            //send an email with a password reset token
             //Mail::to($user->email)->send(new PasswordRecovery($user, $token));
 
             return response()->json([
@@ -194,9 +185,7 @@ class UsersController extends Controller
     public function delete()
     {
         $user = Auth::user();
-
         $user->delete();
-
         return response()->json(['success'=>'User deleted with success'],200);
     }
 
