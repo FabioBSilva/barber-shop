@@ -29,6 +29,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/user', 'UsersController@store');
     Route::post('/user/recover/email', 'UsersController@recoverEmail');
     Route::put('/user/email/update', 'UsersController@resetPassword');
+    Route::get('/test', function(){
+        return 'success';
+    });
 
     //Auth routes
     Route::post('/auth', 'UsersController@login'); 
