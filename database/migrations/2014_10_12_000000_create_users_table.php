@@ -20,6 +20,11 @@ class CreateUsersTable extends Migration
             $table->text('token')->nullable();
             $table->timestamp('token_created_at')->nullable();
             $table->string('password');
+            $table->boolean('barber')->default(0);
+            $table->unsignedBigInteger('schedule_id')->nullable();
+            $table->foreign('schedule_id')->references('id')->on('schedules')->onDelete('cascade');
+            $table->unsignedBigInteger('barber_id')->nullable();
+            $table->foreign('barber_id')->references('id')->on('barbers')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
         });

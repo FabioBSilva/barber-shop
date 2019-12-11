@@ -10,15 +10,20 @@ class UsersFieldValidator
             'name' => 'required|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
+            'barber' => 'required|boolean'
         ];
+
+        return $rules;
     }
 
     public static function login() {
 
         $rules = [
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|exists:users,email',
             'password' => 'required|min:6'
         ];
+
+        return $rules;
     }
 
     public static function update()
@@ -26,7 +31,19 @@ class UsersFieldValidator
         $rules = [
             'name' => 'max:255',
             'email' => 'email|unique:users,email',
-            'password' => 'min:8'
+            'password' => 'min:6'
         ];
+
+        return $rules;
+    }
+
+    public static function changePassword()
+    {
+        $rules = [
+            'password'     => 'required|min:6',
+            'new_password' => 'required|min:6'
+        ];
+        
+        return $rules;
     }
 }

@@ -12,11 +12,11 @@ class Schedule extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo();
     }
 
-    public function barbers()
+    public function barber()
     {
-        return $this->hasMany(Barber::class);
+        return $this->belongsToMany();
     }
 }

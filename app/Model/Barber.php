@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Barber extends Model
 {
     protected $fillable = [
-        'name','street','district','avatar','number','city','zip','scheduled_id'
+        'name','street','district','number','city','zip','avatar'
     ];
 
     public function user()
@@ -15,7 +15,12 @@ class Barber extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function schedule()
+    public function hairdresser()
+    {
+        return $this->hasMany(Hairdresser::class);
+    }
+
+    public function schedules()
     {
         return $this->belongsToMany(Schedule::class);
     }

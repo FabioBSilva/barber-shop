@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBarbersTable extends Migration
+class CreateBarberScheduleTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,11 @@ class CreateBarbersTable extends Migration
      */
     public function up()
     {
-        Schema::create('barbers', function (Blueprint $table) {
+        Schema::create('barber_schedule', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('street');
-            $table->string('district');
-            $table->text('avatar')->nullable();
-            $table->integer('number');
-            $table->string('city');
-            $table->string('zip');
+            $table->unsignedBigInteger('barber_id');
             $table->unsignedBigInteger('schedule_id');
+            $table->foreign('barber_id')->references('id')->on('barbers')->onDelete('cascade');
             $table->foreign('schedule_id')->references('id')->on('schedules')->onDelete('cascade');
             $table->timestamps();
         });
@@ -35,6 +30,6 @@ class CreateBarbersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('barbers');
+        Schema::dropIfExists('barber_schedule');
     }
 }

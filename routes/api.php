@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,7 +11,27 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::middleware('auth:api')->group(function () {
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+    //User routes
+    Route::put('user', 'UsersController@update');
+    Route::get('/user/schedule', 'UsersController@scheduleUser');
+    Route::get('/user', 'UsersController@showAll');
+    Route::get('/user/{id}', 'UsersController@showSpecific')->where('id','[0-9]+');
+    Route::put('/user/password', 'UsersController@changePassword');
+
+    //Auth routes
+    Route::delete('auth', 'UsersController@logout');
+    Route::delete('/user', 'UsersController@delete');
 });
+
+    //User routes
+    Route::post('/user', 'UsersController@store');
+
+    //Auth routes
+    Route::post('/auth', 'UsersController@login'); 
+   
+    
+
+   
+
