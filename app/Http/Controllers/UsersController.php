@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\User;
 use DateInterval;
 use App\Mail\Welcome;
+use App\PasswordReset;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\FieldValidators\UsersFieldValidator;
 use Laravel\Passport\Bridge\PersonalAccessGrant;
-use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -154,13 +155,37 @@ class UsersController extends Controller
             ]);
 
             //send an email with a password reset token
-            Mail::to($user->email)->send(new PasswordRecovery($user, $token));
+            //Mail::to($user->email)->send(new PasswordRecovery($user, $token));
 
             return response()->json([
                 'message' => 'success',
                 'observation' => 'Enviamos um email para ' . $user->email . ' para redefinição de senha.',
                 'user' => $user
             ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $this->validate($request, UsersFieldValidator::resetPassword());
+
+        try {
+            //get the token in the PasswordReset table where they match
+            $passwordReset = PasswordReset::where('token', $request->query('token'))->first();
+            if (!isset($passwordReset)) {
+                return response()->json(['error' => 'Invalid token'], 400);
+            }
+            //change password
+            User::where('email', $passwordReset->email)->update([
+                'password' => bcrypt($request->password)
+            ]);
+
+            //delete token
+            $passwordReset->delete();
+
+            return response()->json(['success' => 'Password redefined'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'An error occurred', 'error' => $e->getMessage()], 500);
         }

@@ -46,4 +46,22 @@ class UsersFieldValidator
         
         return $rules;
     }
+
+    public static function recoverEmail()
+    {
+        $rules = [
+            'email' => 'email|max:255|email',
+        ];
+
+        return $rules;
+    }
+
+    public static function resetPassword()
+    {
+        $rules = [
+            'email' => 'email|unique:users,email',
+        ];
+
+        return $rules;
+    }
 }
