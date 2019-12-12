@@ -90,11 +90,83 @@ class BarbersController extends Controller
     {
         $user = Auth::user();
         
-        $hairDresser = Hairdresser::where('barber_id',$user->barber_id)->get();
+        $hairDresser = Hairdresser::where('barber_id',$user->barber_id)->paginate($this->totalPage);
 
         return response()->json(['hairdressers'=>$hairDresser],200);
     }
 
-    
+    public function updateBarber(Request $request, $idBarber)
+    {
+        $this->validate($request, BarbersFieldValidator::updateBarber());
 
+        $barber = Barber::find($idBarber);
+
+        try{
+            $barber->update($request->only([
+                'name' ,
+                'street' ,
+                'district' ,
+                'number' ,
+                'city' ,
+                'zip' 
+            ]));
+
+            return response()->json(['message'=>'success', 'barber'=>$barber], 200);
+        }catch(\Exception $e){
+            return response()->json(['error'=>$e->getMessage()], 500);
+        }
+    }
+
+    public function updateHairdresser(Request $request, $idHairdresser)
+    {
+        $this->validate($request, BarbersFieldValidator::updateHairdresser());
+        $user = Auth::user();
+
+        $hairDresser = Hairdresser::find($idHairdresser);
+
+        if ($hairDresser->barber_id != $user->barber_id) return response()->json(['error'=>'Hairdresser does not currently belong to a barber shop'], 400);
+
+        try{
+            $hairDresser->update($request->only([
+                'name'
+            ]));
+
+            return response()->json(['message'=>'success', 'hairdresser'=>$hairDresser], 200);
+        } catch(\Exception $e){
+            return response()->json(['error'=>$e->getMessage()], 500);
+        }
+    }
+
+    public function deleteBarber($idBarber)
+    {
+        $user = Auth::user();
+        
+        $barber = Barber::find($idBarber);
+
+        if($barber->id != $user->barber_id) return response()->json(['error'=>'Barberia does not belong to user'], 200);
+        try{
+            DB::beginTransaction();
+
+            $barber->delete();
+
+            DB::commit();
+            return response()->json(['message'=>'Barber shop successfully deleted'], 200);
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error'=>$e->getMessage()], 500);
+        }        
+    }
+
+    public function deleteHairdresser($idHairdresser)
+        {
+            $user = Auth::user();
+
+            $hairDresser = Hairdresser::find($idHairdresser);
+
+            if ($hairDresser->barber_id != $user->barber_id) return response()->json(['error'=>'Hairdresser does not currently belong to a barber shop'], 400);
+            
+            $hairDresser->delete();
+
+            return response()->json(['message'=>'Hairdresser successfully deleted'],200);
+        }
 }

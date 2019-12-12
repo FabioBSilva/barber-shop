@@ -26,10 +26,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/barber', 'BarbersController@show');
     Route::post('/hairdresser', 'BarbersController@storeHairdresser');
     Route::get('/hairdresser', 'BarbersController@showHairdresser');
-
-    //Hairdresser routes
+    Route::put('/barber/{id}', 'BarbersController@updateBarber')->where('id','[0-9]+');
+    Route::put('/hairdresser/{id}', 'BarbersController@updateHairdresser')->where('id','[0-9]+');
+    Route::delete('/hairdresser/{id}', 'BarbersController@deleteHairdresser')->where('id','[0-9]+');
+    Route::delete('/barber/{id}', 'BarbersController@deleteBarber');
     
-
     //Auth routes
     Route::delete('/auth', 'UsersController@logout');
     

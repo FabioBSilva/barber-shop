@@ -36,7 +36,7 @@ class UsersController extends Controller
                 'token' => $token
             ]);
 
-            //Mail::to($user->email)->send(new Welcome($user, $token));
+            Mail::to($user->email)->send(new Welcome($user, $token));
             $user['token'] = $this->setUserToken($user)->accessToken;
             DB::commit();
 

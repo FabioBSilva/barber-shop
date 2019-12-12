@@ -28,4 +28,27 @@ class BarbersFieldValidator
         return $rules;
     }
 
+    public static function updateBarber()
+    {
+        $rules = [
+            'name'      => 'nullable|max:255',
+            'street'    => 'nullable|max:255',
+            'district'  => 'nullable|max:255',
+            'number'    => 'nullable|integer|max:255',
+            'city'      => 'nullable|max:255',
+            'zip'       => 'nullable|min:8'
+        ];
+
+        return $rules;
+    }
+
+    public static function updateHairdresser()
+    {
+        $rules = [
+            'name' => 'nullable|max:255'
+        ];
+
+        return $rules;
+    }
+
 }
