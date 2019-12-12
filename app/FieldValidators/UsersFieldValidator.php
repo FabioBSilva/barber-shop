@@ -10,7 +10,8 @@ class UsersFieldValidator
             'name'      => 'required|max:255',
             'email'     => 'required|email|unique:users,email',
             'password'  => 'required|min:6',
-            'barber'    => 'required|boolean'
+            'barber'    => 'required|boolean',
+            'avatar'    => 'nullable'
         ];
 
         return $rules;
@@ -31,7 +32,8 @@ class UsersFieldValidator
         $rules = [
             'name'      => 'max:255',
             'email'     => 'email|unique:users,email',
-            'password'  => 'min:6'
+            'password'  => 'min:6',
+            'avatar'    => 'nullable'
         ];
 
         return $rules;

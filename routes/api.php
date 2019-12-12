@@ -14,7 +14,7 @@
 Route::middleware('auth:api')->group(function () {
 
     //User routes
-    Route::put('/user', 'UsersController@update');
+    Route::post('/user/update', 'UsersController@update');
     Route::delete('/user', 'UsersController@delete');
     Route::get('/user/schedule', 'UsersController@scheduleUser');
     Route::get('/user', 'UsersController@showAll');

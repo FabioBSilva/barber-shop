@@ -33,16 +33,18 @@ class UsersController extends Controller
                 'email' => $request['email'],
                 'password' => bcrypt($request['password']),
                 'barber' => $request['barber'],
+                'avatar' => $request['avatar'],
                 'token' => $token
             ]);
 
-            Mail::to($user->email)->send(new Welcome($user, $token));
+            //Mail::to($user->email)->send(new Welcome($user, $token));
             $user['token'] = $this->setUserToken($user)->accessToken;
             DB::commit();
 
             return response()->json(['message' => 'success', 'user' => $user], 200);
-        } catch(\Exception $e){
-            return response()->json(['message' => 'error', 'error' => $e->getMessage()],500);
+        } catch(\Throwable $th){
+            DB::rollback();
+            return response()->json(['message' => 'error', 'exception' => $th->getMessage()],500);
         }
     }
 
@@ -78,7 +80,7 @@ class UsersController extends Controller
     public function showSpecific($idUser)
     {
         $user = User::find($idUser);
-        return response()->json(['user'=>$user],200);
+        return response()->json(['user'=>$user],200);     
     }
 
     public function scheduleUser()
@@ -98,9 +100,29 @@ class UsersController extends Controller
                 'name' => $request->input('name', $user->name),
                 'email'=> $request->input('email', $user->email),
             ]);
+
+            $user['avatar'] = $user->avatar;
+            if($request->hasFile('avatar') && $request->file('avatar')->isValid()){
+                if($user->avatar)
+                $name = $user->avatar;
+                else
+                    $name = $user->id.Str::kebab($user->name);
+                $extension = $request->avatar->extension();
+                $nameFile = "{$name}.{$extension}";
+
+                $user->update([
+                    'avatar' => $nameFile
+                    ]);
+
+                $upload = $request->avatar->storeAs('users', $nameFile);
+
+                if(!$upload) return response()->json(['Erro ao fazer upload da imagem']);
+                
+            }
+
             return response()->json(['message'=>'success', 'user' => $user], 200);
-        }catch(\Exception $e){
-            return response()->json(['error'=>$e->getMessage()],500);
+        }catch(\Throwable $th){
+            return response()->json(['message' => 'error', 'exception' => $th->getMessage()],500);
         }
     }
 
