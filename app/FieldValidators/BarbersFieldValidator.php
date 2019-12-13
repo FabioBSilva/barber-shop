@@ -36,7 +36,8 @@ class BarbersFieldValidator
             'district'  => 'nullable|max:255',
             'number'    => 'nullable|integer|max:255',
             'city'      => 'nullable|max:255',
-            'zip'       => 'nullable|min:8'
+            'zip'       => 'nullable|min:8',
+            'logo'      => 'nullable'
         ];
 
         return $rules;

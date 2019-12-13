@@ -21,7 +21,7 @@ class CreateBarbersTable extends Migration
             $table->integer('number');
             $table->string('city');
             $table->string('zip');
-            $table->text('avatar')->nullable();
+            $table->text('logo')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamps();
         });

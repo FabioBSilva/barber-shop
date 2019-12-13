@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Schedule extends Model
 {
     protected $fillable = [
-        'time', 'date'
+        'date','barber_id'
     ];
 
     public function user()
@@ -15,7 +15,7 @@ class Schedule extends Model
         return $this->belongsTo();
     }
 
-    public function barber()
+    public function barbers()
     {
         return $this->belongsToMany();
     }

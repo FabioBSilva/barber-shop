@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use File;
 use App\User;
+use App\Schedule;
 use DateInterval;
 use App\Mail\Welcome;
 use App\PasswordReset;
@@ -209,6 +211,29 @@ class UsersController extends Controller
         $user = Auth::user();
         $user->delete();
         return response()->json(['success'=>'User deleted with success'],200);
+    }
+
+    public function storeSchedules($idSchedule)
+    {   
+        $user = Auth::user();
+
+        $barber = $user->barber;
+        if($barber) return response()->json(['error'=>'User can\'t be a barber'],400);
+
+        $schedule = Schedule::find($idSchedule);
+
+        $user->update([
+            'schedule_id' => $schedule->id
+        ]);
+
+        $format = [
+        'user_id' => $user->id,
+        'name'    => $user->name,
+        'scheduled_id' => $schedule->id,
+        'date' => $schedule->date
+        ];
+
+        return response()->json(['message'=>'success','user'=>$format], 200);
     }
 
     private function setUserToken(User $user){

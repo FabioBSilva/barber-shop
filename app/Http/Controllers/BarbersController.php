@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Barber;
+use App\Schedule;
 use App\Hairdresser;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +37,8 @@ class BarbersController extends Controller
                 'number' => $request['number'],
                 'city' => $request['city'],
                 'zip'   => $request['zip'],
-                'user_id' => $user->id
+                'user_id' => $user->id,
+                'logo' => $request['logo']
             ]);
          
             $user->update([
@@ -45,7 +48,7 @@ class BarbersController extends Controller
             DB::commit();
 
             return response()->json(['message' => 'success', 'barber' => $barber], 200);
-        } catch (\Excpetion $e){
+        } catch (\Throwable $th){
             DB::rollBack();
             return response()->json(['error'=>$e->getMessage()], 400);
         }                 
@@ -73,10 +76,16 @@ class BarbersController extends Controller
             DB::commit();
 
             return response()->json(['message'=>'success', 'hair_dresser'=>$hairDresser],200);
-        }catch(\Exception $e){
+        }catch(\Throwable $th){
             Db::rollBack();
             return response()->json(['error'=>$e->getMessage()],500);
         }
+    }
+
+    public function showBarberSpecific($idBarber)
+    {
+        $barber = Barber::find($idBarber);
+        return response()->json(['message'=>'success','barber'=>$barber],200);
     }
 
     public function showBarber()
@@ -111,8 +120,27 @@ class BarbersController extends Controller
                 'zip' 
             ]));
 
+            $barber['logo'] = $barber->logo;
+            if($request->hasFile('logo') && $request->file('logo')->isValid()){
+                if($barber->logo)
+                    $name = $barber->logo;
+                else
+                    $name = $barber->id.Str::kebab($barber->name);
+                    $extension = $request->logo->extension();
+                    $nameFile = "{$name}.{$extension}";
+
+                    $barber->update([
+                        'logo' => $nameFile
+                        ]);
+
+                    $upload = $request->logo->storeAs('barber', $nameFile);
+
+                    if(!$upload) return response()->json(['Erro ao fazer upload da imagem']);
+                
+            }
+
             return response()->json(['message'=>'success', 'barber'=>$barber], 200);
-        }catch(\Exception $e){
+        }catch(\Throwable $th){
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -132,7 +160,7 @@ class BarbersController extends Controller
             ]));
 
             return response()->json(['message'=>'success', 'hairdresser'=>$hairDresser], 200);
-        } catch(\Exception $e){
+        } catch(\Throwable $th){
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
@@ -151,22 +179,33 @@ class BarbersController extends Controller
 
             DB::commit();
             return response()->json(['message'=>'Barber shop successfully deleted'], 200);
-        }catch (\Exception $e) {
+        }catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(['error'=>$e->getMessage()], 500);
         }        
     }
 
     public function deleteHairdresser($idHairdresser)
-        {
-            $user = Auth::user();
+    {
+        $user = Auth::user();
 
-            $hairDresser = Hairdresser::find($idHairdresser);
+        $hairDresser = Hairdresser::find($idHairdresser);
 
-            if ($hairDresser->barber_id != $user->barber_id) return response()->json(['error'=>'Hairdresser does not currently belong to a barber shop'], 400);
-            
-            $hairDresser->delete();
+        if ($hairDresser->barber_id != $user->barber_id) return response()->json(['error'=>'Hairdresser does not currently belong to a barber shop'], 400);
+        
+        $hairDresser->delete();
 
-            return response()->json(['message'=>'Hairdresser successfully deleted'],200);
-        }
+        return response()->json(['message'=>'Hairdresser successfully deleted'],200);
+    }
+
+   
+
+    // public function deleteSchedule()
+    // {
+    //     $user = Auth::user();
+
+    //     try {
+
+    //     } catch(\Throwable $th)
+    // }
 }
