@@ -12,6 +12,8 @@ use App\FieldValidators\SchedulesFieldValidator;
 
 class ScheduleController extends Controller
 {
+    //POST method: create a schedule
+    //Route: /schedule
     public function store(Request $request)
     {
         $this->validate($request, SchedulesFieldValidator::storeSchedule());
@@ -19,25 +21,29 @@ class ScheduleController extends Controller
         $user = Auth::user();
 
         try{
-            DB::beginTransaction();
 
             $barber = $user->barber;
             if(!$barber) return response()->json(['error'=>'User is not a barber'],400);
-
+            
             $schedule = Schedule::create([
-                'date'      => $request['date'],
+                'hour'      => $request['hour'],
                 'barber_id' => $user->barber_id
 
             ]);
-            DB::commit();
+
+            // $schedules = Schedule::all();
+            // foreach($schedules as $schedule){
+            //     $schedule->date = date("d-m-Y", strtotime($schedule->date));
+            // }
 
             return response()->json(['message'=>'success', 'schedule'=>$schedule], 200);
         }catch(\Throwable $th){
-            DB::rollback();
             return response()->json(['error'=>$th->getMessage()], 500);
         }
     }
 
+    //GET method: Get all the barber shop times
+    //Route: /schedule
     public function showSchedules()
     {
         $user = Auth::user();
@@ -47,42 +53,45 @@ class ScheduleController extends Controller
         return response()->json(['schedules'=>$schedules], 200);
     }
 
-    public function update()
+    //PUT method: allows change in time
+    //Route: /schedule/{id}
+    public function update(Request $request, $idSchedule)
     {
         $this->validate($request, SchedulesFieldValidator::updateSchedule());
         $user = Auth::user();
 
         try{
-            DB::beginTransaction();
 
             $barber = $user->barber;
             if(!$barber) return response()->json(['error'=>'User is not a barber'],400);
 
+            $schedule = Schedule::find($idSchedule);
+
+            if ($schedule->barber_id != $user->barber_id) return response()->json(['error'=>'Schedule does not currently belong to a barber shop'], 400);
+
             $schedule->update([
-                'date' => $request->input('date', $schedule->date)
+                'hour' => $request->input('hour', $schedule->hour)
             ]);
 
-            DB::commit();
-            return response()->json(['message'=>'success'],200);
+            return response()->json(['message'=>'success','schedule'=>$schedule],200);
         }catch(\Throwable $th){
-            DB::rollBack();
             return response()->json(['error'=>$th->getMessage()],500);
         }
     } 
 
-   public function delete($idSchedule)
-   {
-       $user = Auth::user();
-       try{
+    //DELETE method: clears a time
+    //Route: /schedule/{id}
+    public function delete($idSchedule)
+    {
+        $user = Auth::user();
+        try{
             $schedule = Schedule::find($idSchedule);
 
             $schedule->delete();
 
             return response()->json(['message'=>'Schedule deleted successfully'], 200);
-       } catch(\Throwable $th){
-        return response()->json(['error'=>$th->getMessage()],500);
-       }
+        } catch(\Throwable $th){
+            return response()->json(['error'=>$th->getMessage()],500);
+        }
     }
-    
-
 }

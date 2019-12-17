@@ -6,6 +6,7 @@ use File;
 use App\User;
 use App\Schedule;
 use DateInterval;
+use App\Hairdresser;
 use App\Mail\Welcome;
 use App\PasswordReset;
 use Illuminate\Support\Str;
@@ -28,7 +29,6 @@ class UsersController extends Controller
         $token = Str::random(32);
         
         try{
-            DB::beginTransaction();
 
             $user = User::create([
                 'name' => $request['name'],
@@ -40,16 +40,17 @@ class UsersController extends Controller
             ]);
 
             //Mail::to($user->email)->send(new Welcome($user, $token));
-            $user['token'] = $this->setUserToken($user)->accessToken;
-            DB::commit();
+            //$user['token'] = $this->setUserToken($user)->accessToken;
+            return $this->login($request);
 
-            return response()->json(['message' => 'success', 'user' => $user], 200);
+             return response()->json(['message' => 'success', 'user' => $user], 200);
         } catch(\Throwable $th){
-            DB::rollback();
             return response()->json(['message' => 'error', 'exception' => $th->getMessage()],500);
         }
     }
 
+    //POST method: allows user to login
+    //Route: /auth
     public function login(Request $request)
     {
         $this->validate($request, UsersFieldValidator::login());
@@ -67,31 +68,32 @@ class UsersController extends Controller
         ], 200); 
     }
 
+    //DELETE method: allows user to logout
+    //Route: /auth
     function logout(Request $request)
     {
         $request->user()->token()->revoke();
         return response(['message' => 'Successfully logout'], 200);
     }
 
+    //GET method: search all users
+    //Route: /user
     public function showAll()
     {
         $user = Auth::user();
         return response()->json(['message'=>'success', 'user' => $user], 200);
     }
 
+    //GET method: search for a specific user
+    //Route: /user/{id}
     public function showSpecific($idUser)
     {
         $user = User::find($idUser);
         return response()->json(['user'=>$user],200);     
     }
 
-    public function scheduleUser()
-    {
-        $user = Auth::user();
-        $schedule = $user->schedule;
-        return response()->json(['message'=>'success', 'schedule'=>$schedule], 200);
-    }
-
+    //POST method: allows user to make changes to their account
+    //Route: /user/update
     public function update(Request $request)
     {
         $this->validate($request, UsersFieldValidator::update());
@@ -128,6 +130,8 @@ class UsersController extends Controller
         }
     }
 
+    //PUT method: allows the user to change their password
+    //Route: /user/password
     public function changePassword(Request $request)
     {
         $this->validate($request, UsersFieldValidator::changePassword());
@@ -152,6 +156,8 @@ class UsersController extends Controller
         }
     }
 
+    //POST method: allows user to recover their account
+    //Route: /user/recover/email
     public function recoverEmail(Request $request)
     {
         $this->validate($request, UsersFieldValidator::recoverEmail());
@@ -182,6 +188,10 @@ class UsersController extends Controller
         }
     }
 
+    //PUT method: This function depends on the "recoverEmail" function.
+    //            This function changes the password after the user clicks
+    //            on the link sent by email
+    //Route: /user/password/update
     public function resetPassword(Request $request)
     {
         $this->validate($request, UsersFieldValidator::resetPassword());
@@ -205,7 +215,9 @@ class UsersController extends Controller
             return response()->json(['message' => 'An error occurred', 'error' => $e->getMessage()], 500);
         }
     }
-
+    
+    //DELETE method: Delete user
+    //Route: /user
     public function delete()
     {
         $user = Auth::user();
@@ -213,7 +225,9 @@ class UsersController extends Controller
         return response()->json(['success'=>'User deleted with success'],200);
     }
 
-    public function storeSchedules($idSchedule)
+    //POST method: Link a time to a user
+    //Route: /schedule/{scheduleid}/hairdresser/{hairdresserid}
+    public function storeSchedulesUser($idSchedule, $idHairdresser)
     {   
         $user = Auth::user();
 
@@ -221,21 +235,63 @@ class UsersController extends Controller
         if($barber) return response()->json(['error'=>'User can\'t be a barber'],400);
 
         $schedule = Schedule::find($idSchedule);
+        $hairdresser = Hairdresser::find($idHairdresser);
+
+        if($user->schedule_id != null) return response()->json(['error'=>'User already has an appointment']);
 
         $user->update([
-            'schedule_id' => $schedule->id
+            'schedule_id' => $schedule->id,
+            'hairdresser_id' => $hairdresser->id
         ]);
 
         $format = [
         'user_id' => $user->id,
         'name'    => $user->name,
         'scheduled_id' => $schedule->id,
-        'date' => $schedule->date
+        'hairdresser_id' => $hairdresser->id,
+        'hour' => $schedule->hour
         ];
 
         return response()->json(['message'=>'success','user'=>$format], 200);
     }
 
+    //DELETE method: Unlink a time to a user
+    //Route: /schedule/{scheduleid}/hairdresser/{hairdresserid}
+    public function deleteScheduleUser($idSchedule)
+    {
+        $user = Auth::user();
+        $barber = $user->barber;
+        if($barber) return response()->json(['error'=>'User can\'t be a barber'], 400);
+
+        $schedule = Schedule::find($idSchedule);
+
+        $user->update([
+            'schedule_id' => null,
+            'hairdresser_id' => null
+        ]);
+
+        return response()->json(['message'=>'Schedule successfully unlinked'], 200);
+    }
+
+    //GET method: Get the time and hairdresser that belong to the user
+    //Route: /user/schedule
+    public function getScheduleUser()
+    {
+        $user = Auth::user();
+
+        $barber = $user->barber;
+        if($barber) return response()->json(['error'=>'User can\'t be a barber'],400);
+
+        $format = [
+            'user_id' => $user->id,
+            'scheduled_id' => $user->schedule_id,
+            'hairdresser_id' => $user->hairdresser_id
+        ];
+
+        return response()->json(['message'=>'success', 'schedule'=>$format],200);
+    }
+
+    //Create accesstoken
     private function setUserToken(User $user){
         $authorizarionServer = app()->make(\League\OAuth2\Server\AuthorizationServer::class);
         $authorizarionServer->enableGrantType(

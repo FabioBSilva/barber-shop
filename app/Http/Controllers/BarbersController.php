@@ -15,6 +15,8 @@ class BarbersController extends Controller
 {
     private $totalPage = 5;
 
+    //POST method: Create a barber shop
+    //Route: /barber
     public function store(Request $request)
     {   
         $this->validate($request, BarbersFieldValidator::store());
@@ -54,6 +56,8 @@ class BarbersController extends Controller
         }                 
     }
 
+    //POST method: Create a hairdresser
+    //Route: /hairdresser
     public function storeHairdresser(Request $request)
     {
         $this->validate($request, BarbersFieldValidator::storeHairdresser());
@@ -82,12 +86,19 @@ class BarbersController extends Controller
         }
     }
 
+    //GET method: Shows a specific barber shop
+    //Route: /barber/{id}
     public function showBarberSpecific($idBarber)
     {
         $barber = Barber::find($idBarber);
+        if($barber->hairdresser){
+            $barber->hairdresser;
+        }
         return response()->json(['message'=>'success','barber'=>$barber],200);
     }
 
+    //GET method: Show all barber shops
+    //Route: /barber
     public function showBarber()
     {
         $barbers = Barber::paginate($this->totalPage);
@@ -95,6 +106,15 @@ class BarbersController extends Controller
         return response()->json(['message'=>'success','barbers'=>$barbers], 200);
     }
 
+    // public function showUsers()
+    // {
+    //     $user = Atuh::user();
+
+    //     $hairDresser = 
+    // }
+
+    //GET method: Show all hairdressers that belong to barber shop
+    //Route: /hairdresser
     public function showHairdresser()
     {
         $user = Auth::user();
@@ -104,6 +124,8 @@ class BarbersController extends Controller
         return response()->json(['hairdressers'=>$hairDresser],200);
     }
 
+    //POST method: Lets you make changes to the barber shop
+    //Route: /barber/update/{id}
     public function updateBarber(Request $request, $idBarber)
     {
         $this->validate($request, BarbersFieldValidator::updateBarber());
@@ -145,6 +167,8 @@ class BarbersController extends Controller
         }
     }
 
+    //PUT method: Lets you make hairdresser changes
+    //Route: /hairdresser/{id}
     public function updateHairdresser(Request $request, $idHairdresser)
     {
         $this->validate($request, BarbersFieldValidator::updateHairdresser());
@@ -165,6 +189,8 @@ class BarbersController extends Controller
         }
     }
 
+    //DELETE method: Lets you erase the barber shop
+    //Route: /barber/{id}
     public function deleteBarber($idBarber)
     {
         $user = Auth::user();
@@ -173,18 +199,17 @@ class BarbersController extends Controller
 
         if($barber->id != $user->barber_id) return response()->json(['error'=>'Barberia does not belong to user'], 200);
         try{
-            DB::beginTransaction();
 
             $barber->delete();
 
-            DB::commit();
             return response()->json(['message'=>'Barber shop successfully deleted'], 200);
         }catch (\Throwable $th) {
-            DB::rollBack();
             return response()->json(['error'=>$e->getMessage()], 500);
         }        
     }
 
+    //DELETE method: Allows you to delete a hairdresser
+    //Route: /hairdresser/{id}
     public function deleteHairdresser($idHairdresser)
     {
         $user = Auth::user();
@@ -196,16 +221,5 @@ class BarbersController extends Controller
         $hairDresser->delete();
 
         return response()->json(['message'=>'Hairdresser successfully deleted'],200);
-    }
-
-   
-
-    // public function deleteSchedule()
-    // {
-    //     $user = Auth::user();
-
-    //     try {
-
-    //     } catch(\Throwable $th)
-    // }
+    }   
 }
