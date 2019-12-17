@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\FieldValidators\UsersFieldValidator;
 use Laravel\Passport\Bridge\PersonalAccessGrant;
 
@@ -35,15 +36,28 @@ class UsersController extends Controller
                 'email' => $request['email'],
                 'password' => bcrypt($request['password']),
                 'barber' => $request['barber'],
-                'avatar' => $request['avatar'],
                 'token' => $token
             ]);
 
+            if($request->hasFile('avatar') && $request->file('avatar')->isValid()){
+                
+                $name = $user->id.Str::kebab($user->name);
+                $extension = $request->avatar->extension();
+                $nameFile = "{$name}.{$extension}";
+                
+                Storage::put('users/'.$nameFile, file_get_contents($request->file('avatar')));
+
+                $upload = Storage::url('users/'.$nameFile);
+
+                $user->update([
+                    'avatar' => $upload
+                    ]);
+
+            }
             //Mail::to($user->email)->send(new Welcome($user, $token));
             //$user['token'] = $this->setUserToken($user)->accessToken;
             return $this->login($request);
 
-             return response()->json(['message' => 'success', 'user' => $user], 200);
         } catch(\Throwable $th){
             return response()->json(['message' => 'error', 'exception' => $th->getMessage()],500);
         }
@@ -105,25 +119,24 @@ class UsersController extends Controller
                 'email'=> $request->input('email', $user->email),
             ]);
 
-            $user['avatar'] = $user->avatar;
             if($request->hasFile('avatar') && $request->file('avatar')->isValid()){
-                if($user->avatar)
-                $name = $user->avatar;
-                else
-                    $name = $user->id.Str::kebab($user->name);
+                if($user->avatar){
+                    $f = explode('storage/', $user->avatar)[1];
+                    Storage::delete($f);
+                }
+
+                $name = $user->id.Str::kebab($user->name);
                 $extension = $request->avatar->extension();
                 $nameFile = "{$name}.{$extension}";
+                
+                Storage::put('users/'.$nameFile, file_get_contents($request->file('avatar')));
+
+                $upload = Storage::url('users/'.$nameFile);
 
                 $user->update([
-                    'avatar' => $nameFile
+                    'avatar' => $upload
                     ]);
-
-                $upload = $request->avatar->storeAs('users', $nameFile);
-
-                if(!$upload) return response()->json(['Erro ao fazer upload da imagem']);
-                
             }
-
             return response()->json(['message'=>'success', 'user' => $user], 200);
         }catch(\Throwable $th){
             return response()->json(['message' => 'error', 'exception' => $th->getMessage()],500);
