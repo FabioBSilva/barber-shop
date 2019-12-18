@@ -14,4 +14,9 @@ class Hairdresser extends Model
     {
         return $this->belongsTo(Barber::class);
     }
+
+    public function hairdresser()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

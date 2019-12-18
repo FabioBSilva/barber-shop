@@ -1,5 +1,7 @@
 <?php
 
+use App\Events\TestEvent;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -51,13 +53,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/user/recover/email', 'UsersController@recoverEmail');
     Route::put('/user/password/update', 'UsersController@resetPassword');
     Route::get('/test', function(){
-        return 'success';
+        return event(new TestEvent());
     });
 
     //Auth routes
     Route::post('/auth', 'UsersController@login'); 
-   
-    
-
-   
-

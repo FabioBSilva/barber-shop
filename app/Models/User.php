@@ -16,7 +16,7 @@ class User extends Authenticatable
     * @var array
     */
     protected $fillable = [
-        'name', 'password', 'email', 'token', 'barber', 'schedule_id','barber_id','avatar'
+        'name', 'password', 'email', 'token', 'barber', 'schedule_id','barber_id','avatar','hairdresser_id'
     ];
 
     protected $hidden = [
@@ -31,6 +31,11 @@ class User extends Authenticatable
     public function schedule()
     {
         return $this->hasOne(Schedule::class);
+    }
+
+    public function hairdresser()
+    {
+        return $this->hasOne(Hairdresser::class);
     }
 
 }

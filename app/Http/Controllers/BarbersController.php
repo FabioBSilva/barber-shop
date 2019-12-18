@@ -70,18 +70,14 @@ class BarbersController extends Controller
         if($user->barber_id == null) return response()->json(['error'=>'User has no registered barber shop'],400);
 
         try{
-            DB::beginTransaction();
 
             $hairDresser = Hairdresser::create([
                 'name' => $request['name'],
                 'barber_id' => $user->barber_id
             ]);
 
-            DB::commit();
-
             return response()->json(['message'=>'success', 'hair_dresser'=>$hairDresser],200);
         }catch(\Throwable $th){
-            Db::rollBack();
             return response()->json(['error'=>$e->getMessage()],500);
         }
     }
@@ -99,14 +95,14 @@ class BarbersController extends Controller
 
     //GET method: Show all barber shops
     //Route: /barber
-    public function showBarber()
+    public function showBarber(Request $request)
     {
-        $barbers = Barber::paginate($this->totalPage);
+        $barbers = Barber::paginate($request->query('per_page', 5));
 
         return response()->json(['message'=>'success','barbers'=>$barbers], 200);
     }
 
-    // public function showUsers()
+    // public function sh()
     // {
     //     $user = Atuh::user();
 

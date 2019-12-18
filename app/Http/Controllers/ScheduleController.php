@@ -48,7 +48,13 @@ class ScheduleController extends Controller
     {
         $user = Auth::user();
 
-        $schedules = Schedule::where('barber_id', $user->barber_id)->get();
+        $schedules = Schedule::where('schedules.barber_id', $user->barber_id)
+        ->leftJoin('users', 'users.schedule_id', 'schedules.id')
+        ->leftJoin('hairdressers', 'users.hairdresser_id', 'hairdressers.id')
+        ->join('barbers', 'barbers.id', 'schedules.barber_id')
+        ->selectRaw('schedules.id as schedule_id, users.name as user, hairdressers.name as hairdresser, schedules.hour, barbers.name as barber')
+        ->get();
+        
 
         return response()->json(['schedules'=>$schedules], 200);
     }

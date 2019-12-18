@@ -11,6 +11,7 @@ use App\Mail\Welcome;
 use App\PasswordReset;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Events\UserScheduleEvent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -264,6 +265,9 @@ class UsersController extends Controller
         'hairdresser_id' => $hairdresser->id,
         'hour' => $schedule->hour
         ];
+
+
+        event(new UserScheduleEvent($user, $schedule));
 
         return response()->json(['message'=>'success','user'=>$format], 200);
     }
