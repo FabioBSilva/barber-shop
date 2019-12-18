@@ -12,6 +12,7 @@ use App\FieldValidators\SchedulesFieldValidator;
 
 class ScheduleController extends Controller
 {
+    private $totalPage = 5; 
     //POST method: create a schedule
     //Route: /schedule
     public function store(Request $request)
@@ -42,9 +43,20 @@ class ScheduleController extends Controller
         }
     }
 
-    //GET method: Get all the barber shop times
+    //GET method: Show all times belonging to barber shop
     //Route: /schedule
     public function showSchedules()
+    {
+        $user = Auth::user();
+
+        $schedules = Schedule::where('barber_id', $user->barber_id)->paginate($this->totalPage);
+
+        return response()->json(['schedules'=>$schedules], 200);
+    }
+
+    //GET method: Get all the barber shop times
+    //Route: /schedule/user
+    public function showUserSchedules()
     {
         $user = Auth::user();
 
@@ -52,10 +64,9 @@ class ScheduleController extends Controller
         ->leftJoin('users', 'users.schedule_id', 'schedules.id')
         ->leftJoin('hairdressers', 'users.hairdresser_id', 'hairdressers.id')
         ->join('barbers', 'barbers.id', 'schedules.barber_id')
-        ->selectRaw('schedules.id as schedule_id, users.name as user, hairdressers.name as hairdresser, schedules.hour, barbers.name as barber')
+        ->selectRaw('schedules.id as schedule_id, users.name as user, hairdressers.name as hairdresser, schedules.hour, barbers.name as barber, barbers.id as barber_id')
         ->get();
         
-
         return response()->json(['schedules'=>$schedules], 200);
     }
 
@@ -85,7 +96,7 @@ class ScheduleController extends Controller
         }
     } 
 
-    //DELETE method: clears a time
+    //DELETE method: Clears a schedule
     //Route: /schedule/{id}
     public function delete($idSchedule)
     {

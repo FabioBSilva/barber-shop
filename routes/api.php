@@ -40,13 +40,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/schedule', 'ScheduleController@store');
     Route::put('/schedule/{id}', 'ScheduleController@update');
     Route::delete('/schedule/{id}', 'ScheduleController@delete');
+    Route::get('/schedule/user', 'ScheduleController@showUserSchedules');
     Route::get('/schedule', 'ScheduleController@showSchedules');
     
     //Auth routes
     Route::delete('/auth', 'UsersController@logout');
     
 });
-    
 
     //User routes
     Route::post('/user', 'UsersController@store');

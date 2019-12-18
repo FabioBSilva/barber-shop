@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\FieldValidators\BarbersFieldValidator;
 
 class BarbersController extends Controller
@@ -42,6 +43,22 @@ class BarbersController extends Controller
                 'user_id' => $user->id,
                 'logo' => $request['logo']
             ]);
+
+            if($request->hasFile('logo') && $request->file('logo')->isValid()){
+                
+                $name = $barber->id.Str::kebab($barber->name);
+                $extension = $request->logo->extension();
+                $nameFile = "{$name}.{$extension}";
+                
+                Storage::put('barbers/'.$nameFile, file_get_contents($request->file('logo')));
+
+                $upload = Storage::url('barbers/'.$nameFile);
+
+                $barber->update([
+                    'logo' => $upload
+                    ]);
+
+            }
          
             $user->update([
                 'barber_id' => $barber->id
@@ -90,7 +107,12 @@ class BarbersController extends Controller
         if($barber->hairdresser){
             $barber->hairdresser;
         }
-        return response()->json(['message'=>'success','barber'=>$barber],200);
+
+        $schedules = Schedule::where('barber_id', $idBarber)->get();
+
+        return response()->json(['message'=>'success','barber'=>$barber, 'schedules'=>$schedules],200);
+        
+        
     }
 
     //GET method: Show all barber shops
@@ -135,31 +157,31 @@ class BarbersController extends Controller
                 'district' ,
                 'number' ,
                 'city' ,
-                'zip' 
+                'zip',
             ]));
 
-            $barber['logo'] = $barber->logo;
             if($request->hasFile('logo') && $request->file('logo')->isValid()){
-                if($barber->logo)
-                    $name = $barber->logo;
-                else
-                    $name = $barber->id.Str::kebab($barber->name);
-                    $extension = $request->logo->extension();
-                    $nameFile = "{$name}.{$extension}";
+                if($barber->logo){
+                    $f = explode('storage/', $barber->logo)[1];
+                    Storage::delete($f);
+                }
 
-                    $barber->update([
-                        'logo' => $nameFile
-                        ]);
-
-                    $upload = $request->logo->storeAs('barber', $nameFile);
-
-                    if(!$upload) return response()->json(['Erro ao fazer upload da imagem']);
+                $name = $barber->id.Str::kebab($barber->name);
+                $extension = $request->logo->extension();
+                $nameFile = "{$name}.{$extension}";
                 
+                Storage::put('barbers/'.$nameFile, file_get_contents($request->file('logo')));
+
+                $upload = Storage::url('barbers/'.$nameFile);
+
+                $barber->update([
+                    'logo' => $upload
+                    ]);
             }
 
             return response()->json(['message'=>'success', 'barber'=>$barber], 200);
         }catch(\Throwable $th){
-            return response()->json(['error'=>$e->getMessage()], 500);
+            return response()->json(['error'=>$th->getMessage()], 500);
         }
     }
 

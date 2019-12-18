@@ -13,7 +13,8 @@ class BarbersFieldValidator
             'district' => 'required|max:255',
             'number'   => 'required|integer|max:255',
             'city'     => 'required|max:255',
-            'zip'      => 'required|min:8'
+            'zip'      => 'required|min:8',
+            'logo'     => 'nullable'
         ];
 
         return $rules;

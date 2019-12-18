@@ -13,16 +13,14 @@ class Welcome extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public $user;
-    public $token;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user,$token)
+    public function __construct($user)
     {
         $this->user = $user;
-        $this->token = $token;
     }
 
     /**

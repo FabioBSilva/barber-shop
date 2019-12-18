@@ -2,7 +2,7 @@
     <body>
         <p>Olá {{ $user->name }}!</p>
         <p></p>
-        <p>Seja bem vindo! Clique">aqui</a>para verificar seu email</p>
+        <p>Seja bem vindo!</p>
         <p></p>
         <p>Att, <br>
         Fabio Barbosa da Silva</p>

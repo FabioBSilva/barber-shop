@@ -55,7 +55,7 @@ class UsersController extends Controller
                     ]);
 
             }
-            //Mail::to($user->email)->send(new Welcome($user, $token));
+            Mail::to($user->email)->send(new Welcome($user));
             //$user['token'] = $this->setUserToken($user)->accessToken;
             return $this->login($request);
 
@@ -95,7 +95,7 @@ class UsersController extends Controller
     //Route: /user
     public function showAll()
     {
-        $user = Auth::user();
+        $user = User::all();
         return response()->json(['message'=>'success', 'user' => $user], 200);
     }
 
@@ -161,7 +161,7 @@ class UsersController extends Controller
 
                 //Mail::to($user->email)->send(new NewPassword($user));
 
-                return response()->json(['message' => 'success', 'success' => 'Password has been changed'], 200);
+                return response()->json(['success' => 'Password has been changed'], 200);
             } else {
                 return response()->json(['message' => 'error', 'error' => 'Password are equals'], 422);
             }
@@ -251,7 +251,8 @@ class UsersController extends Controller
         $schedule = Schedule::find($idSchedule);
         $hairdresser = Hairdresser::find($idHairdresser);
 
-        if($user->schedule_id != null) return response()->json(['error'=>'User already has an appointment']);
+        if($user->schedule_id != null) return response()->json(['error'=>'User already has an appointment'], 400);
+        if($schedule->barber_id != $hairdresser->barber_id) return response()->json(['error'=> 'Hairdresser or schedule does not belong to the same barber shop'], 400);
 
         $user->update([
             'schedule_id' => $schedule->id,
@@ -260,12 +261,12 @@ class UsersController extends Controller
 
         $format = [
         'user_id' => $user->id,
-        'name'    => $user->name,
-        'scheduled_id' => $schedule->id,
+        'user_name'    => $user->name,
         'hairdresser_id' => $hairdresser->id,
+        'hairdresser_name' => $hairdresser->name,
+        'scheduled_id' => $schedule->id,
         'hour' => $schedule->hour
         ];
-
 
         event(new UserScheduleEvent($user, $schedule));
 
@@ -286,6 +287,8 @@ class UsersController extends Controller
             'schedule_id' => null,
             'hairdresser_id' => null
         ]);
+
+        event(new UserScheduleEvent($user, $schedule));
 
         return response()->json(['message'=>'Schedule successfully unlinked'], 200);
     }
