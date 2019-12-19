@@ -12,7 +12,7 @@ class Schedule extends Model
 
     public function user()
     {
-        return $this->belongsTo();
+        return $this->hasOne();
     }
 
     public function barbers()

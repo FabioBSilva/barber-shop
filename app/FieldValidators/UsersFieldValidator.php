@@ -30,9 +30,9 @@ class UsersFieldValidator
     public static function update()
     {
         $rules = [
-            'name'      => 'max:255',
-            'email'     => 'email|unique:users,email',
-            'password'  => 'min:6',
+            'name'      => 'nullable|max:255',
+            'email'     => 'nullable|email|unique:users,email',
+            'password'  => 'nullable|min:6',
             'avatar'    => 'nullable'
         ];
 
@@ -61,7 +61,7 @@ class UsersFieldValidator
     public static function resetPassword()
     {
         $rules = [
-            'email' => 'email|unique:users,email',
+            'password' => 'required|min:8',
         ];
 
         return $rules;

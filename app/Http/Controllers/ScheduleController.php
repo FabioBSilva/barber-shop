@@ -56,7 +56,7 @@ class ScheduleController extends Controller
 
     //GET method: Get all the barber shop times
     //Route: /schedule/user
-    public function showUserSchedules()
+    public function showUserSchedules(Request $request)
     {
         $user = Auth::user();
 
@@ -65,7 +65,7 @@ class ScheduleController extends Controller
         ->leftJoin('hairdressers', 'users.hairdresser_id', 'hairdressers.id')
         ->join('barbers', 'barbers.id', 'schedules.barber_id')
         ->selectRaw('schedules.id as schedule_id, users.name as user, hairdressers.name as hairdresser, schedules.hour, barbers.name as barber, barbers.id as barber_id')
-        ->get();
+        ->paginate($request->query('per_page', 5));
         
         return response()->json(['schedules'=>$schedules], 200);
     }

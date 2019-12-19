@@ -104,7 +104,11 @@ class UsersController extends Controller
     public function showSpecific($idUser)
     {
         $user = User::find($idUser);
-        return response()->json(['user'=>$user],200);     
+
+        $barber = DB::table('barbers')->find($user->barber_id);
+        
+
+        return response()->json(['user'=>$user, 'barber'=>$barber],200);     
     }
 
     //POST method: allows user to make changes to their account
@@ -300,15 +304,21 @@ class UsersController extends Controller
         $user = Auth::user();
 
         $barber = $user->barber;
-        if($barber) return response()->json(['error'=>'User can\'t be a barber'],400);
+        if($barber) return response()->json(['error'=>'User can\'t be a barber'], 400);
 
-        $format = [
-            'user_id' => $user->id,
-            'scheduled_id' => $user->schedule_id,
-            'hairdresser_id' => $user->hairdresser_id
+        $schedule = DB::table('schedules')->find($user->schedule_id);
+
+        if(!$schedule) return response()->json(['error'=>'User has no appointment'], 400);
+
+        $formated = [
+            'user' => $user,
+            'barber' => DB::table('barbers')->find($schedule->barber_id),
+            'schedule' => $schedule,
+            'hairdresser' => DB::table('hairdressers')->find($user->hairdresser_id)
+            
         ];
 
-        return response()->json(['message'=>'success', 'schedule'=>$format],200);
+        return response()->json(['message'=>'success', 'schedule'=>$formated],200);
     }
 
     //Create accesstoken
