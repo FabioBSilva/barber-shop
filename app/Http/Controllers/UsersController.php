@@ -201,8 +201,8 @@ class UsersController extends Controller
                 'observation' => 'Enviamos um email para ' . $user->email . ' para redefinição de senha.',
                 'user' => $user
             ], 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'An error occurred', 'error' => $e->getMessage()], 500);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'An error occurred', 'error' => $th->getMessage()], 500);
         }
     }
 
@@ -229,8 +229,8 @@ class UsersController extends Controller
             $passwordReset->delete();
 
             return response()->json(['success' => 'Password redefined'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'An error occurred', 'error' => $e->getMessage()], 500);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'An error occurred', 'error' => $th->getMessage()], 500);
         }
     }
     

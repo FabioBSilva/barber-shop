@@ -96,7 +96,7 @@ class BarbersController extends Controller
 
             return response()->json(['message'=>'success', 'hair_dresser'=>$hairDresser],200);
         }catch(\Throwable $th){
-            return response()->json(['error'=>$e->getMessage()],500);
+            return response()->json(['error'=>$th->getMessage()],500);
         }
     }
 
@@ -197,7 +197,7 @@ class BarbersController extends Controller
 
             return response()->json(['message'=>'success', 'hairdresser'=>$hairDresser], 200);
         } catch(\Throwable $th){
-            return response()->json(['error'=>$e->getMessage()], 500);
+            return response()->json(['error'=>$th->getMessage()], 500);
         }
     }
 
@@ -216,7 +216,7 @@ class BarbersController extends Controller
 
             return response()->json(['message'=>'Barber shop successfully deleted'], 200);
         }catch (\Throwable $th) {
-            return response()->json(['error'=>$e->getMessage()], 500);
+            return response()->json(['error'=>$th->getMessage()], 500);
         }        
     }
 
