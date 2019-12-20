@@ -27,7 +27,7 @@ class ScheduleController extends Controller
             if(!$barber) return response()->json(['error'=>'User is not a barber'],400);
             
             $schedule = Schedule::create([
-                'hour'      => $request['hour'],
+                'date'      => $request['date'],
                 'barber_id' => $user->barber_id
 
             ]);
@@ -64,13 +64,13 @@ class ScheduleController extends Controller
         ->leftJoin('users', 'users.schedule_id', 'schedules.id')
         ->leftJoin('hairdressers', 'users.hairdresser_id', 'hairdressers.id')
         ->join('barbers', 'barbers.id', 'schedules.barber_id')
-        ->selectRaw('schedules.id as schedule_id, users.name as user, hairdressers.name as hairdresser, schedules.hour, barbers.name as barber, barbers.id as barber_id')
+        ->selectRaw('schedules.id as schedule_id, users.name as user, hairdressers.name as hairdresser, schedules.date, barbers.name as barber, barbers.id as barber_id')
         ->paginate($request->query('per_page', 5));
         
-        return response()->json(['schedules'=>$schedules], 200);
+        return response()->json(['message'=>'success','schedules'=>$schedules], 200);
     }
 
-    //PUT method: allows change in time
+    //PUT method: Allows change in time
     //Route: /schedule/{id}
     public function update(Request $request, $idSchedule)
     {
@@ -87,7 +87,7 @@ class ScheduleController extends Controller
             if ($schedule->barber_id != $user->barber_id) return response()->json(['error'=>'Schedule does not currently belong to a barber shop'], 400);
 
             $schedule->update([
-                'hour' => $request->input('hour', $schedule->hour)
+                'date' => $request->input('date', $schedule->date)
             ]);
 
             return response()->json(['message'=>'success','schedule'=>$schedule],200);

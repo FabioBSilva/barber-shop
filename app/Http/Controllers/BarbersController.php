@@ -40,6 +40,7 @@ class BarbersController extends Controller
                 'number' => $request['number'],
                 'city' => $request['city'],
                 'zip'   => $request['zip'],
+                'state' => $request['state'],
                 'user_id' => $user->id,
                 'logo' => $request['logo']
             ]);
@@ -69,7 +70,7 @@ class BarbersController extends Controller
             return response()->json(['message' => 'success', 'barber' => $barber], 200);
         } catch (\Throwable $th){
             DB::rollBack();
-            return response()->json(['error'=>$e->getMessage()], 400);
+            return response()->json(['error'=>$th->getMessage()], 400);
         }                 
     }
 
@@ -111,8 +112,7 @@ class BarbersController extends Controller
         $schedules = Schedule::where('barber_id', $idBarber)->get();
 
         return response()->json(['message'=>'success','barber'=>$barber, 'schedules'=>$schedules],200);
-        
-        
+            
     }
 
     //GET method: Show all barber shops
@@ -123,13 +123,6 @@ class BarbersController extends Controller
 
         return response()->json(['message'=>'success','barbers'=>$barbers], 200);
     }
-
-    // public function sh()
-    // {
-    //     $user = Atuh::user();
-
-    //     $hairDresser = 
-    // }
 
     //GET method: Show all hairdressers that belong to barber shop
     //Route: /hairdresser
@@ -158,6 +151,7 @@ class BarbersController extends Controller
                 'number' ,
                 'city' ,
                 'zip',
+                'state'
             ]));
 
             if($request->hasFile('logo') && $request->file('logo')->isValid()){

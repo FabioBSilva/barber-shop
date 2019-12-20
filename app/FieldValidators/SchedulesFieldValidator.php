@@ -7,7 +7,7 @@ class SchedulesFieldValidator
     public static function storeSchedule()
     {
         $rules = [
-            'hour' => 'required|date_format:H:i'
+            'date' => 'required|date_format:Y-m-d H:i'
         ];
 
         return $rules;
@@ -16,7 +16,7 @@ class SchedulesFieldValidator
     public static function updateSchedule()
     {
         $rules = [
-            'hour' => 'nullable|date_format:H:i'
+            'date' => 'nullable|date_format:Y-m-d H:i'
         ];
 
         return $rules;

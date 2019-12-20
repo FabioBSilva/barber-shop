@@ -18,9 +18,10 @@ class CreateBarbersTable extends Migration
             $table->string('name');
             $table->string('street');
             $table->string('district');
-            $table->integer('number');
+            $table->string('number');
             $table->string('city');
             $table->string('zip');
+            $table->string('state');
             $table->text('logo')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamps();

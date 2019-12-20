@@ -262,14 +262,14 @@ class UsersController extends Controller
             'schedule_id' => $schedule->id,
             'hairdresser_id' => $hairdresser->id
         ]);
-
+        
         $format = [
         'user_id' => $user->id,
         'user_name'    => $user->name,
         'hairdresser_id' => $hairdresser->id,
         'hairdresser_name' => $hairdresser->name,
         'scheduled_id' => $schedule->id,
-        'hour' => $schedule->hour
+        'date' => $schedule->date
         ];
 
         event(new UserScheduleEvent($user, $schedule));
@@ -290,6 +290,10 @@ class UsersController extends Controller
         $user->update([
             'schedule_id' => null,
             'hairdresser_id' => null
+        ]);
+
+        $schedule->update([
+            'id' => $idSchedule
         ]);
 
         event(new UserScheduleEvent($user, $schedule));

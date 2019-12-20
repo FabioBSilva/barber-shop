@@ -8,12 +8,13 @@ class BarbersFieldValidator
     public static function store()
     {
         $rules = [
-            'name'     => 'required|max:255',
-            'street'   => 'required|max:255',
-            'district' => 'required|max:255',
-            'number'   => 'required|integer|max:255',
-            'city'     => 'required|max:255',
-            'zip'      => 'required|min:8',
+            'name'     => 'required|string',
+            'street'   => 'required|string',
+            'district' => 'required|string',
+            'number'   => 'required|string',
+            'city'     => 'required|string',
+            'zip'      => 'required|string|min:8',
+            'state'    => 'required|string',
             'logo'     => 'nullable'
         ];
 
@@ -32,12 +33,13 @@ class BarbersFieldValidator
     public static function updateBarber()
     {
         $rules = [
-            'name'      => 'nullable|max:255',
-            'street'    => 'nullable|max:255',
-            'district'  => 'nullable|max:255',
-            'number'    => 'nullable|integer|max:255',
-            'city'      => 'nullable|max:255',
+            'name'      => 'nullable|string',
+            'street'    => 'nullable|string',
+            'district'  => 'nullable|string',
+            'number'    => 'nullable|string',
+            'city'      => 'nullable|string',
             'zip'       => 'nullable|min:8',
+            'state'     => 'nullable|string',
             'logo'      => 'nullable'
         ];
 
